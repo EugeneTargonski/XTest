@@ -1,0 +1,10 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/XTest/.vs/XTest
+/XTest/XTest/XTest/obj
+/XTest/XTest/XTest.Android/obj
+/XTest/XTest/XTest.iOS/obj
+/XTest/XTest/XTest.UWP/obj
+/XTest/XTestBackend/obj
