@@ -44,6 +44,20 @@ namespace XTest
                 HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.CenterAndExpand
             };
+            button.Clicked += OnButtonClicked;
+            var authenticator = new OAuth2Authenticator(
+                "21170702167-jriifs3n881an76deo58c5lb92l6fj11.apps.googleusercontent.com",//"21170702167-shcpgfp2385u39188gne29la3udp7k9g.apps.googleusercontent.com",
+                null,//"wBlzvVKmeS_DeT4Fspniy2P_",
+                "https://www.googleapis.com/auth/userinfo.email",
+                new Uri("https://accounts.google.com/o/oauth2/auth"),
+                new Uri("urn:ietf:wg:oauth:2.0:oob"),
+                new Uri("https://oauth2.googleapis.com/token"),
+                null,
+                true);
+
+            var presenter = new Xamarin.Auth.Presenters.OAuthLoginPresenter();
+            presenter.Login(authenticator);
+
             stackLayout.Children.Add(label);
             stackLayout.Children.Add(button);
             this.Content = stackLayout;
