@@ -8,3 +8,9 @@
 /XTest/XTest/XTest.iOS/obj
 /XTest/XTest/XTest.UWP/obj
 /XTest/XTestBackend/obj
+/XTest/XTest/XTest/bin/Debug/netstandard2.0
+/XTest/XTest/XTest.Android/bin/Debug
+/XTest/XTest/XTest.UWP/bin/x86/Debug
+/XTest/XTest/XTest.iOS/bin/iPhone/Debug
+/XTest/XTestBackend/bin/Debug/netcoreapp3.1
+/XTest/XTestBackend/bin/Release/netcoreapp3.1
