@@ -9,7 +9,6 @@ namespace XTest
         public App()
         {
             InitializeComponent();
-
             MainPage = new MainPage();
         }
 
