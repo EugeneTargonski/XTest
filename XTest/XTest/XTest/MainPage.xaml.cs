@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Contracts.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Auth;
@@ -22,6 +24,7 @@ namespace XTest
         public static readonly string GOOGLE_REDIRECTURL = "https://www.googleapis.com/plus/v1/people/me";
         public static readonly string GOOGLE_REQUESTURL = "https://www.googleapis.com/oauth2/v2/userinfo";
         readonly OAuth2Authenticator authenticator = new OAuth2Authenticator(GOOGLE_ID, GOOGLE_SCOPE, new Uri(GOOGLE_AUTH), new Uri(GOOGLE_REDIRECTURL));
+        private static readonly HttpClient httpClient = new HttpClient();
 
         private readonly Label label = new Label
         {
@@ -44,7 +47,16 @@ namespace XTest
                 HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.CenterAndExpand
             };
+            Button button2 = new Button
+            {
+                Text = "Нажми!",
+                FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Button)),
+                BorderWidth = 1,
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.CenterAndExpand
+            };
             button.Clicked += OnButtonClicked;
+            button2.Clicked += OnButtonClicked;
             var authenticator = new OAuth2Authenticator(
                 "21170702167-jriifs3n881an76deo58c5lb92l6fj11.apps.googleusercontent.com",//"21170702167-shcpgfp2385u39188gne29la3udp7k9g.apps.googleusercontent.com",
                 null,//"wBlzvVKmeS_DeT4Fspniy2P_",
@@ -67,8 +79,24 @@ namespace XTest
         {
             Button button = (Button)sender;
             button.Text = "Нажато!";
-            //button.BackgroundColor = Color.Red;
         }
+
+        private async void OnButton2Clicked(object sender, System.EventArgs e)
+        {
+            Button button = (Button)sender;
+            button.Text = "Нажато!";
+            var user = new User();
+            var values = new Dictionary<string, string>
+                {
+                { "thing1", "hello" },
+                { "thing2", "world" }
+                };
+
+            var content = new FormUrlEncodedContent(values);
+
+            var response = await httpClient.PostAsync("http://www.example.com/recepticle.aspx", content);
+        }
+
 
         private void OnAuthCompleted(object sender, System.EventArgs e)
         {
