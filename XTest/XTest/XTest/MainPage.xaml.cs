@@ -1,13 +1,14 @@
-﻿using Contracts.Models;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Auth;
 using Xamarin.Forms;
+using Xamarin.Essentials;
 
 
 
@@ -18,13 +19,9 @@ namespace XTest
     [DesignTimeVisible(false)]
     public partial class MainPage : ContentPage
     {
-        public static readonly string GOOGLE_ID = "21170702167-jriifs3n881an76deo58c5lb92l6fj11.apps.googleusercontent.com";
-        public static readonly string GOOGLE_SCOPE = "https://www.googleapis.com/auth/userinfo.email";
-        public static readonly string GOOGLE_AUTH = "https://accounts.google.com/o/oauth2/auth";
-        public static readonly string GOOGLE_REDIRECTURL = "https://www.googleapis.com/plus/v1/people/me";
-        public static readonly string GOOGLE_REQUESTURL = "https://www.googleapis.com/oauth2/v2/userinfo";
-        readonly OAuth2Authenticator authenticator = new OAuth2Authenticator(GOOGLE_ID, GOOGLE_SCOPE, new Uri(GOOGLE_AUTH), new Uri(GOOGLE_REDIRECTURL));
-        private static readonly HttpClient httpClient = new HttpClient();
+        //Account account;
+        User user = null;
+
 
         private readonly Label label = new Label
         {
@@ -34,6 +31,47 @@ namespace XTest
             FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Label))
         };
 
+        //async Task 
+        async void
+            LoginAsync()
+        {
+            //store = AccountStore.Create();
+
+            string clientId = null;
+            string redirectUri = null;
+
+            switch (Device.RuntimePlatform)
+            {
+                case Device.iOS:
+                    clientId = Constants.iOSClientId;
+                    redirectUri = Constants.iOSRedirectUrl;
+                    break;
+
+                case Device.Android:
+                    clientId = Constants.AndroidClientId;
+                    redirectUri = Constants.AndroidRedirectUrl;
+                    break;
+            }
+            //account = (await SecureStorageAccountStore.FindAccountsForServiceAsync(Constants.AppName)).FirstOrDefault();
+
+            var authenticator = new OAuth2Authenticator(
+                clientId,
+                null,
+                Constants.Scope,
+                new Uri(Constants.AuthorizeUrl),
+                new Uri(redirectUri),
+                new Uri(Constants.AccessTokenUrl),
+                null,
+                true);
+
+            authenticator.Completed += OnAuthCompleted;
+            authenticator.Error += OnAuthError;
+
+            AuthenticationState.Authenticator = authenticator;
+
+            var presenter = new Xamarin.Auth.Presenters.OAuthLoginPresenter();
+            presenter.Login(authenticator);
+        }
 
         public MainPage()
         {
@@ -47,60 +85,28 @@ namespace XTest
                 HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.CenterAndExpand
             };
-            Button button2 = new Button
-            {
-                Text = "Нажми!",
-                FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Button)),
-                BorderWidth = 1,
-                HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.CenterAndExpand
-            };
             button.Clicked += OnButtonClicked;
-            button2.Clicked += OnButtonClicked;
-            var authenticator = new OAuth2Authenticator(
-                "21170702167-jriifs3n881an76deo58c5lb92l6fj11.apps.googleusercontent.com",//"21170702167-shcpgfp2385u39188gne29la3udp7k9g.apps.googleusercontent.com",
-                null,//"wBlzvVKmeS_DeT4Fspniy2P_",
-                "https://www.googleapis.com/auth/userinfo.email",
-                new Uri("https://accounts.google.com/o/oauth2/auth"),
-                new Uri("urn:ietf:wg:oauth:2.0:oob"),
-                new Uri("https://oauth2.googleapis.com/token"),
-                null,
-                true);
+            LoginAsync();
 
-            var presenter = new Xamarin.Auth.Presenters.OAuthLoginPresenter();
-            presenter.Login(authenticator);
 
             stackLayout.Children.Add(label);
             stackLayout.Children.Add(button);
             this.Content = stackLayout;
+
+            
         }
 
         private void OnButtonClicked(object sender, System.EventArgs e)
         {
             Button button = (Button)sender;
             button.Text = "Нажато!";
+            label.Text = user?.Id;
+            //button.BackgroundColor = Color.Red;
         }
 
-        private async void OnButton2Clicked(object sender, System.EventArgs e)
+        private void OnAuthCompletedOld(object sender, AuthenticatorCompletedEventArgs e)
         {
-            Button button = (Button)sender;
-            button.Text = "Нажато!";
-            var user = new User();
-            var values = new Dictionary<string, string>
-                {
-                { "thing1", "hello" },
-                { "thing2", "world" }
-                };
-
-            var content = new FormUrlEncodedContent(values);
-
-            var response = await httpClient.PostAsync("http://www.example.com/recepticle.aspx", content);
-        }
-
-
-        private void OnAuthCompleted(object sender, System.EventArgs e)
-        {
-            //OAuth2Authenticator auth = (OAuth2Authenticator)sender;
+            var authenticator = sender as OAuth2Authenticator;
             if (authenticator.IsAuthenticated())
             {
                 //Authentication failed Do something
@@ -108,6 +114,46 @@ namespace XTest
                 return;
             }
             label.Text = "Isn't Authenticated";
+        }
+
+        async void OnAuthCompleted(object sender, AuthenticatorCompletedEventArgs e)
+        {
+            var authenticator = sender as OAuth2Authenticator;
+            if (authenticator != null)
+            {
+                authenticator.Completed -= OnAuthCompleted;
+                authenticator.Error -= OnAuthError;
+            }
+            
+            if (e.IsAuthenticated)
+            {
+                // If the user is authenticated, request their basic user data from Google
+                // UserInfoUrl = https://www.googleapis.com/oauth2/v2/userinfo
+                var request = new OAuth2Request("GET", new Uri(Constants.UserInfoUrl), null, e.Account);
+                var response = await request.GetResponseAsync();
+                if (response != null)
+                {
+                    // Deserialize the data and store it in the account store
+                    // The users email address will be used to identify data in SimpleDB
+                    string userJson = await response.GetResponseTextAsync();
+                    user = JsonConvert.DeserializeObject<User>(userJson);
+                }
+
+                await SecureStorageAccountStore.SaveAsync(e.Account, Constants.AppName);
+                await DisplayAlert("Email address", user?.Email, "OK");
+                await DisplayAlert("Name", user?.Name, "OK");
+            }
+        }
+
+        void OnAuthError(object sender, AuthenticatorErrorEventArgs e)
+        {
+            var authenticator = sender as OAuth2Authenticator;
+            if (authenticator != null)
+            {
+                authenticator.Completed -= OnAuthCompleted;
+                authenticator.Error -= OnAuthError;
+            }
+            Debug.WriteLine("Authentication error: " + e.Message);
         }
     }
 }
