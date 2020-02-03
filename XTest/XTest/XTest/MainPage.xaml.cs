@@ -1,16 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿//using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Xamarin.Auth;
 using Xamarin.Forms;
-using Xamarin.Essentials;
-
-
+using Contracts.Models;
+using System.Net.Http;
+using System.Text.Json;
 
 namespace XTest
 {
@@ -19,8 +17,8 @@ namespace XTest
     [DesignTimeVisible(false)]
     public partial class MainPage : ContentPage
     {
-        //Account account;
-        User user = null;
+        //private static readonly HttpClient client = new HttpClient();
+        private User user;
 
 
         private readonly Label label = new Label
@@ -75,33 +73,55 @@ namespace XTest
 
         public MainPage()
         {
+            user = new User()
+            {
+                FirstName = "firstName",
+                LastName = "lastName",
+                GoogleID = "id"
+            };
             //InitializeComponent();
             StackLayout stackLayout = new StackLayout();
-            Button button = new Button
+            Button buttonAdd = new Button
             {
-                Text = "Нажми!",
+                Text = user.LastName,//"Add user to base",
                 FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Button)),
                 BorderWidth = 1,
                 HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.CenterAndExpand
             };
-            button.Clicked += OnButtonClicked;
+            buttonAdd.Clicked += OnButtonAddClicked;
             LoginAsync();
 
 
             stackLayout.Children.Add(label);
-            stackLayout.Children.Add(button);
+            stackLayout.Children.Add(buttonAdd);
             this.Content = stackLayout;
 
             
         }
 
-        private void OnButtonClicked(object sender, System.EventArgs e)
+        private async void OnButtonAddClicked(object sender, System.EventArgs e)
         {
             Button button = (Button)sender;
-            button.Text = "Нажато!";
-            label.Text = user?.Id;
-            //button.BackgroundColor = Color.Red;
+            string json = JsonSerializer.Serialize(user);
+            /*
+            var stringContent = new StringContent(json, Encoding.UTF32, "application/json");
+
+            var response = await client.PostAsync("http://xtestapplication.azurewebsites.net/api/users", stringContent);
+
+            var responseString = await response.Content.ReadAsStringAsync();
+            */
+            using (HttpClient hc = new HttpClient())
+            {
+                hc.BaseAddress = new Uri("http://xtestapplication.azurewebsites.net/api/users");
+                hc.DefaultRequestHeaders.Accept.Clear();
+                hc.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                var param = new StringContent(json, Encoding.Unicode, "application/json");
+                HttpResponseMessage response = await hc.PostAsync(hc.BaseAddress, param);
+
+                button.Text = "User added";
+                label.Text = user?.GoogleID;
+            }
         }
 
         private void OnAuthCompletedOld(object sender, AuthenticatorCompletedEventArgs e)
@@ -118,13 +138,12 @@ namespace XTest
 
         async void OnAuthCompleted(object sender, AuthenticatorCompletedEventArgs e)
         {
-            var authenticator = sender as OAuth2Authenticator;
-            if (authenticator != null)
+            if (sender is OAuth2Authenticator authenticator)
             {
                 authenticator.Completed -= OnAuthCompleted;
                 authenticator.Error -= OnAuthError;
             }
-            
+
             if (e.IsAuthenticated)
             {
                 // If the user is authenticated, request their basic user data from Google
@@ -136,19 +155,30 @@ namespace XTest
                     // Deserialize the data and store it in the account store
                     // The users email address will be used to identify data in SimpleDB
                     string userJson = await response.GetResponseTextAsync();
-                    user = JsonConvert.DeserializeObject<User>(userJson);
+                    //user = JsonConvert.DeserializeObject<User>(userJson);
+                    
+                    //List<Dictionary<string, string>> ValueList = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(userJson);
+                    Dictionary<string, string> ValueList = JsonSerializer.Deserialize<Dictionary<string, string>>(userJson);
+                    ValueList.TryGetValue("given_name", out string firstName);
+                    ValueList.TryGetValue("family_name", out string lastName);
+                    ValueList.TryGetValue("id", out string id);
+                    user = new User
+                    {
+                        FirstName = firstName,
+                        LastName = lastName,
+                        GoogleID = id
+                    };
                 }
 
                 await SecureStorageAccountStore.SaveAsync(e.Account, Constants.AppName);
-                await DisplayAlert("Email address", user?.Email, "OK");
-                await DisplayAlert("Name", user?.Name, "OK");
+                //await DisplayAlert("Email address", user?.Email, "OK");
+                //await DisplayAlert("Name", user.Name, "OK");
             }
         }
 
         void OnAuthError(object sender, AuthenticatorErrorEventArgs e)
         {
-            var authenticator = sender as OAuth2Authenticator;
-            if (authenticator != null)
+            if (sender is OAuth2Authenticator authenticator)
             {
                 authenticator.Completed -= OnAuthCompleted;
                 authenticator.Error -= OnAuthError;
