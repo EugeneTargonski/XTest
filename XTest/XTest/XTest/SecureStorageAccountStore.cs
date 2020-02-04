@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json;
 using System.Threading.Tasks;
 using Xamarin.Auth;
 using Xamarin.Essentials;
 using System.Linq;
+using System.Text.Json;
 
 namespace XTest
 {
@@ -21,7 +21,7 @@ namespace XTest
             accounts.Add(account);
 
             // Serialize all the accounts to javascript
-            var json = JsonConvert.SerializeObject(accounts);
+            var json = JsonSerializer.Serialize(accounts);
 
             // Securely save the accounts for the given service
             await SecureStorage.SetAsync(serviceId, json);
@@ -34,7 +34,7 @@ namespace XTest
             try
             {
                 // Try to return deserialized list of accounts
-                return JsonConvert.DeserializeObject<List<Account>>(json);
+                return JsonSerializer.Deserialize<List<Account>>(json);
             }
             catch { }
 

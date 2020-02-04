@@ -83,7 +83,7 @@ namespace XTest
             StackLayout stackLayout = new StackLayout();
             Button buttonAdd = new Button
             {
-                Text = user.LastName,//"Add user to base",
+                Text = "Add user to base",
                 FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Button)),
                 BorderWidth = 1,
                 HorizontalOptions = LayoutOptions.Center,
@@ -95,7 +95,12 @@ namespace XTest
 
             stackLayout.Children.Add(label);
             stackLayout.Children.Add(buttonAdd);
+
+            string json = JsonSerializer.Serialize(user);
+            label.Text = json;
+
             this.Content = stackLayout;
+
 
             
         }
@@ -104,13 +109,6 @@ namespace XTest
         {
             Button button = (Button)sender;
             string json = JsonSerializer.Serialize(user);
-            /*
-            var stringContent = new StringContent(json, Encoding.UTF32, "application/json");
-
-            var response = await client.PostAsync("http://xtestapplication.azurewebsites.net/api/users", stringContent);
-
-            var responseString = await response.Content.ReadAsStringAsync();
-            */
             using (HttpClient hc = new HttpClient())
             {
                 hc.BaseAddress = new Uri("http://xtestapplication.azurewebsites.net/api/users");
@@ -118,7 +116,6 @@ namespace XTest
                 hc.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                 var param = new StringContent(json, Encoding.Unicode, "application/json");
                 HttpResponseMessage response = await hc.PostAsync(hc.BaseAddress, param);
-
                 button.Text = "User added";
                 label.Text = user?.GoogleID;
             }
