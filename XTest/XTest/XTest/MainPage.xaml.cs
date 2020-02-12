@@ -1,4 +1,4 @@
-﻿//using Newtonsoft.Json;
+﻿using Plugin.Settings;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,20 +18,77 @@ namespace XTest
     public partial class MainPage : ContentPage
     {
         //private static readonly HttpClient client = new HttpClient();
-        private User user;
-
-
+        private User user = new User()
+        {
+            Id = CrossSettings.Current.GetValueOrDefault("Id", 0),
+            FirstName = CrossSettings.Current.GetValueOrDefault("FirstName", ""),
+            LastName = CrossSettings.Current.GetValueOrDefault("FirstName", ""),
+            GoogleID = CrossSettings.Current.GetValueOrDefault("GoogleID", ""),
+            EMail = CrossSettings.Current.GetValueOrDefault("GoogleID", "EMail"),
+            Description = CrossSettings.Current.GetValueOrDefault("GoogleID", "Description"),
+        };
         private readonly Label label = new Label
         {
             VerticalTextAlignment = TextAlignment.Center,
             HorizontalTextAlignment = TextAlignment.Center,
-            Text = "Welcome to Xamarin Forms!",
-            FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Label))
+            FontSize = Device.GetNamedSize(NamedSize.Small, typeof(Label))
+        };
+        private readonly Button buttonAdd = new Button
+        {
+            Text = "Add user to base",
+            FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Button)),
+            BorderWidth = 1,
+            HorizontalOptions = LayoutOptions.Center,
+            VerticalOptions = LayoutOptions.CenterAndExpand
+        };
+        private readonly Button buttonLogin = new Button
+        {
+            Text = "Login",
+            FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Button)),
+            BorderWidth = 1,
+            HorizontalOptions = LayoutOptions.Center,
+            VerticalOptions = LayoutOptions.CenterAndExpand
         };
 
+
         //async Task 
-        async void
-            LoginAsync()
+        public MainPage()
+        {
+            label.Text = user.GoogleID;
+            //InitializeComponent();
+            StackLayout stackLayout = new StackLayout();
+
+            buttonAdd.Clicked += OnButtonAddClicked;
+            buttonLogin.Clicked += OnButtonLoginClicked;
+            buttonLogin.Clicked += OnButtonLoginClicked;
+
+            stackLayout.Children.Add(label);
+            stackLayout.Children.Add(buttonAdd);
+            stackLayout.Children.Add(buttonLogin);
+
+            Content = stackLayout;
+        }
+
+        private async void OnButtonAddClicked(object sender, System.EventArgs e)
+        {
+            string json = JsonSerializer.Serialize(user);
+            using (HttpClient hc = new HttpClient())
+            {
+                hc.BaseAddress = new Uri("http://xtestapplication.azurewebsites.net/api/users");
+                hc.DefaultRequestHeaders.Accept.Clear();
+                hc.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                var param = new StringContent(json, Encoding.Unicode, "application/json");
+                HttpResponseMessage response = await hc.PostAsync(hc.BaseAddress, param);
+                label.Text = "User GoogleID=" + user?.GoogleID + " added to database";
+            }
+        }
+
+        private void OnButtonLoginClicked(object sender, System.EventArgs e)
+        {
+            Login();
+        }
+
+        void Login()
         {
             //store = AccountStore.Create();
 
@@ -52,85 +109,26 @@ namespace XTest
             }
             //account = (await SecureStorageAccountStore.FindAccountsForServiceAsync(Constants.AppName)).FirstOrDefault();
 
-            var authenticator = new OAuth2Authenticator(
-                clientId,
-                null,
-                Constants.Scope,
-                new Uri(Constants.AuthorizeUrl),
-                new Uri(redirectUri),
-                new Uri(Constants.AccessTokenUrl),
-                null,
-                true);
+            var authenticator = new OAuth2Authenticator(clientId, null, Constants.Scope, new Uri(Constants.AuthorizeUrl), new Uri(redirectUri),
+                                                        new Uri(Constants.AccessTokenUrl), null, true);
 
             authenticator.Completed += OnAuthCompleted;
             authenticator.Error += OnAuthError;
-
             AuthenticationState.Authenticator = authenticator;
-
             var presenter = new Xamarin.Auth.Presenters.OAuthLoginPresenter();
             presenter.Login(authenticator);
         }
 
-        public MainPage()
+        private void AfterLogin()
         {
-            user = new User()
-            {
-                FirstName = "firstName",
-                LastName = "lastName",
-                GoogleID = "id"
-            };
-            //InitializeComponent();
-            StackLayout stackLayout = new StackLayout();
-            Button buttonAdd = new Button
-            {
-                Text = "Add user to base",
-                FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Button)),
-                BorderWidth = 1,
-                HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.CenterAndExpand
-            };
-            buttonAdd.Clicked += OnButtonAddClicked;
-            LoginAsync();
+            CrossSettings.Current.AddOrUpdateValue("Id",user.Id);
+            CrossSettings.Current.AddOrUpdateValue("FirstName", user.FirstName);
+            CrossSettings.Current.AddOrUpdateValue("LastName", user.LastName);
+            CrossSettings.Current.AddOrUpdateValue("GoogleID", user.GoogleID);
+            CrossSettings.Current.AddOrUpdateValue("EMail", user.EMail);
+            CrossSettings.Current.AddOrUpdateValue("Description", user.Description);
 
-
-            stackLayout.Children.Add(label);
-            stackLayout.Children.Add(buttonAdd);
-
-            string json = JsonSerializer.Serialize(user);
-            label.Text = json;
-
-            this.Content = stackLayout;
-
-
-            
-        }
-
-        private async void OnButtonAddClicked(object sender, System.EventArgs e)
-        {
-            Button button = (Button)sender;
-            string json = JsonSerializer.Serialize(user);
-            using (HttpClient hc = new HttpClient())
-            {
-                hc.BaseAddress = new Uri("http://xtestapplication.azurewebsites.net/api/users");
-                hc.DefaultRequestHeaders.Accept.Clear();
-                hc.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-                var param = new StringContent(json, Encoding.Unicode, "application/json");
-                HttpResponseMessage response = await hc.PostAsync(hc.BaseAddress, param);
-                button.Text = "User added";
-                label.Text = user?.GoogleID;
-            }
-        }
-
-        private void OnAuthCompletedOld(object sender, AuthenticatorCompletedEventArgs e)
-        {
-            var authenticator = sender as OAuth2Authenticator;
-            if (authenticator.IsAuthenticated())
-            {
-                //Authentication failed Do something
-                label.Text = "Is Authenticated";
-                return;
-            }
-            label.Text = "Isn't Authenticated";
+            label.Text = "User GoogleID=" + user?.GoogleID + " logined";
         }
 
         async void OnAuthCompleted(object sender, AuthenticatorCompletedEventArgs e)
@@ -170,6 +168,7 @@ namespace XTest
                 await SecureStorageAccountStore.SaveAsync(e.Account, Constants.AppName);
                 //await DisplayAlert("Email address", user?.Email, "OK");
                 //await DisplayAlert("Name", user.Name, "OK");
+                AfterLogin();
             }
         }
 
