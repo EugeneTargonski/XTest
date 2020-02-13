@@ -9,6 +9,7 @@ using Xamarin.Forms;
 using Contracts.Models;
 using System.Net.Http;
 using System.Text.Json;
+using XamForms.Controls;
 
 namespace XTest
 {
@@ -49,22 +50,54 @@ namespace XTest
             HorizontalOptions = LayoutOptions.Center,
             VerticalOptions = LayoutOptions.CenterAndExpand
         };
-
+        private readonly Button buttonTest = new Button
+        {
+            Text = "Test",
+            FontSize = Device.GetNamedSize(NamedSize.Small, typeof(Button)),
+            BorderWidth = 1,
+            HorizontalOptions = LayoutOptions.Center,
+            VerticalOptions = LayoutOptions.CenterAndExpand
+        };
+        private readonly Button buttonShowCal = new Button
+        {
+            Text = "Calendar",
+            FontSize = Device.GetNamedSize(NamedSize.Small, typeof(Button)),
+            BorderWidth = 1,
+            HorizontalOptions = LayoutOptions.Center,
+            VerticalOptions = LayoutOptions.CenterAndExpand
+        };
+        private readonly Calendar calendar = new Calendar
+        {
+            BorderColor = Color.LightGray,
+            BorderWidth = 1,
+            BackgroundColor = Color.White,
+            StartDay = DayOfWeek.Monday,
+            StartDate = DateTime.Now,
+            DatesFontSize = Device.GetNamedSize(NamedSize.Small, typeof(Calendar)),
+            TitleLabelFontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Calendar)),
+        };
+        private readonly StackLayout stackLayout = new StackLayout();
 
         //async Task 
         public MainPage()
         {
             label.Text = user.GoogleID;
             //InitializeComponent();
-            StackLayout stackLayout = new StackLayout();
-
+            
             buttonAdd.Clicked += OnButtonAddClicked;
             buttonLogin.Clicked += OnButtonLoginClicked;
             buttonLogin.Clicked += OnButtonLoginClicked;
+            buttonTest.Clicked += OnButtonTestClicked;
+            buttonShowCal.Clicked += OnButtonShowCalClicked;
+            calendar.DateClicked += DateClicked;
+
+
 
             stackLayout.Children.Add(label);
             stackLayout.Children.Add(buttonAdd);
             stackLayout.Children.Add(buttonLogin);
+            stackLayout.Children.Add(buttonTest);
+            stackLayout.Children.Add(buttonShowCal);
 
             Content = stackLayout;
         }
@@ -82,12 +115,23 @@ namespace XTest
                 label.Text = "User GoogleID=" + user?.GoogleID + " added to database";
             }
         }
-
+        private void OnButtonShowCalClicked(object sender, System.EventArgs e)
+        {
+            if (stackLayout.Children.Contains(calendar))
+                stackLayout.Children.Remove(calendar);
+            else stackLayout.Children.Add(calendar);
+        }
         private void OnButtonLoginClicked(object sender, System.EventArgs e)
         {
             Login();
         }
-
+        private void DateClicked(object sender, System.EventArgs e)
+        {
+            label.Text = calendar.SelectedDate.ToString() + " clicked";
+        }
+        private void OnButtonTestClicked(object sender, System.EventArgs e)
+        {
+        }
         void Login()
         {
             //store = AccountStore.Create();
