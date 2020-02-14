@@ -1,11 +1,14 @@
-﻿using Plugin.Settings;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Xamarin.Forms;
+using Xamarin.Forms.Xaml;
+using Plugin.Settings;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Text;
 using Xamarin.Auth;
-using Xamarin.Forms;
 using Contracts.Models;
 using System.Net.Http;
 using System.Text.Json;
@@ -13,18 +16,8 @@ using XamForms.Controls;
 
 namespace XTest
 {
-    // Learn more about making custom code visible in the Xamarin.Forms previewer
-    // by visiting https://aka.ms/xamarinforms-previewer
-    //[DesignTimeVisible(false)]
-    public partial class MainPage : TabbedPage
-    {
-        public MainPage()
-        {
-            InitializeComponent();
-        }
-    }
-    /*
-    public partial class MainPage : ContentPage
+    [XamlCompilation(XamlCompilationOptions.Compile)]
+    public partial class Page1 : ContentPage
     {
         //private static readonly HttpClient client = new HttpClient();
         private User user = new User()
@@ -88,11 +81,11 @@ namespace XTest
         private readonly StackLayout stackLayout = new StackLayout();
 
         //async Task 
-        public MainPage()
+        public Page1()
         {
+            InitializeComponent();
             label.Text = user.GoogleID;
-            //InitializeComponent();
-            
+
             buttonAdd.Clicked += OnButtonAddClicked;
             buttonLogin.Clicked += OnButtonLoginClicked;
             buttonLogin.Clicked += OnButtonLoginClicked;
@@ -108,7 +101,7 @@ namespace XTest
             calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(3)) { BackgroundColor = Color.Goldenrod, Selectable = true });
             calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(4)) { BackgroundColor = Color.OrangeRed, Selectable = true });
 
-            
+
             //calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(2)) {BackgroundColor = Color.Orange });
             //calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(-2)) { BackgroundColor = Color.OrangeRed });
             //calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(-4)) { BackgroundColor = Color.Red });
@@ -197,7 +190,7 @@ namespace XTest
 
         private void AfterLogin()
         {
-            CrossSettings.Current.AddOrUpdateValue("Id",user.Id);
+            CrossSettings.Current.AddOrUpdateValue("Id", user.Id);
             CrossSettings.Current.AddOrUpdateValue("FirstName", user.FirstName);
             CrossSettings.Current.AddOrUpdateValue("LastName", user.LastName);
             CrossSettings.Current.AddOrUpdateValue("GoogleID", user.GoogleID);
@@ -227,7 +220,7 @@ namespace XTest
                     // The users email address will be used to identify data in SimpleDB
                     string userJson = await response.GetResponseTextAsync();
                     //user = JsonConvert.DeserializeObject<User>(userJson);
-                    
+
                     //List<Dictionary<string, string>> ValueList = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(userJson);
                     Dictionary<string, string> ValueList = JsonSerializer.Deserialize<Dictionary<string, string>>(userJson);
                     ValueList.TryGetValue("given_name", out string firstName);
