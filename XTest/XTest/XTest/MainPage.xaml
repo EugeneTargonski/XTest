@@ -4,11 +4,12 @@
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             xmlns:local="clr-namespace:XTest;assembly:XTest"
+             xmlns:local="clr-namespace:XTest;assembly=XTest"
              x:Class="XTest.MainPage">
     <TabbedPage.Children>
         <local:Page1 />
         <local:Page2 />
+        <local:Page3 />
     </TabbedPage.Children>
 
 
