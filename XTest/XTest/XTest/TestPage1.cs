@@ -1,30 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
+﻿using Contracts.Models;
 using Plugin.Settings;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using Xamarin.Auth;
-using Contracts.Models;
+using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Text.Json;
+using Xamarin.Auth;
+using Xamarin.Forms;
 using XamForms.Controls;
 
 namespace XTest
 {
-    [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class Page1 : ContentPage
+    public class TestPage1 : ContentPage
     {
-        //private static readonly HttpClient client = new HttpClient();
         private User user = new User()
         {
             Id = CrossSettings.Current.GetValueOrDefault("Id", 0),
-            FirstName = CrossSettings.Current.GetValueOrDefault("FirstName", ""),
-            LastName = CrossSettings.Current.GetValueOrDefault("FirstName", ""),
-            GoogleID = CrossSettings.Current.GetValueOrDefault("GoogleID", ""),
-            EMail = CrossSettings.Current.GetValueOrDefault("GoogleID", "EMail"),
-            Description = CrossSettings.Current.GetValueOrDefault("GoogleID", "Description"),
+            FirstName = CrossSettings.Current.GetValueOrDefault("FirstName", null),
+            LastName = CrossSettings.Current.GetValueOrDefault("LastName", null),
+            GoogleID = CrossSettings.Current.GetValueOrDefault("GoogleID", null),
+            EMail = CrossSettings.Current.GetValueOrDefault("EMail", null),
+            Description = CrossSettings.Current.GetValueOrDefault("Description", null),
         };
         private readonly Label label = new Label
         {
@@ -76,11 +74,9 @@ namespace XTest
 
         };
         private readonly StackLayout stackLayout = new StackLayout();
-
-        //async Task 
-        public Page1()
+        public TestPage1()
         {
-            InitializeComponent();
+            Title = "hate XAML";
             label.Text = user.GoogleID;
 
             buttonAdd.Clicked += OnButtonAddClicked;
@@ -98,23 +94,6 @@ namespace XTest
             calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(3)) { BackgroundColor = Color.Goldenrod, Selectable = true });
             calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(4)) { BackgroundColor = Color.OrangeRed, Selectable = true });
 
-
-            //calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(2)) {BackgroundColor = Color.Orange });
-            //calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(-2)) { BackgroundColor = Color.OrangeRed });
-            //calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(-4)) { BackgroundColor = Color.Red });
-            //calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(-6)) { BackgroundColor = Color.Green });
-            //calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(-8)) { BackgroundColor = Color.GreenYellow });
-            //calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(-10)) { BackgroundColor = Color.Yellow });
-            //calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(-12)) { BackgroundColor = Color.DarkOrange });
-            //calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(4)) { BackgroundColor = Color.LightGreen });
-            //calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(6)) { BackgroundColor = Color.Gold });
-            //calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(8)) { BackgroundColor = Color.Goldenrod });
-            //calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(10)) { BackgroundColor = Color.PaleGoldenrod });
-            //calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(12)) { BackgroundColor = Color.DarkGoldenrod });
-            //calendar.SpecialDates.Add(new SpecialDate(DateTime.Now.AddDays(14)) { BackgroundColor = Color.DarkRed });
-
-
-
             stackLayout.Children.Add(label);
             stackLayout.Children.Add(buttonAdd);
             stackLayout.Children.Add(buttonLogin);
@@ -123,7 +102,6 @@ namespace XTest
 
             Content = stackLayout;
         }
-
         private async void OnButtonAddClicked(object sender, System.EventArgs e)
         {
             string json = JsonSerializer.Serialize(user);
@@ -248,5 +226,4 @@ namespace XTest
             Debug.WriteLine("Authentication error: " + e.Message);
         }
     }
-    /**/
 }

@@ -1,12 +1,13 @@
 ﻿using System;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using XTest.Services;
+using Xamarin.Forms;
 
 namespace XTest
 {
-    [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class Page3 : ContentPage
+    public class TestPage2 : ContentPage
     {
         private readonly Button buttonScan = new Button
         {
@@ -24,9 +25,9 @@ namespace XTest
             Placeholder = "Barcode Result"
         };
         private readonly StackLayout stackLayout = new StackLayout();
-        public Page3()
+        public TestPage2()
         {
-            InitializeComponent();
+            Title = "QR-scanner";
             buttonScan.Clicked += OnButtonScanClicked;
             stackLayout.Children.Add(txtBarcode);
             stackLayout.Children.Add(buttonScan);
@@ -44,7 +45,7 @@ namespace XTest
                     txtBarcode.Text = result;
                 }
             }
-            catch 
+            catch
             {
                 //Not scanned
             }
