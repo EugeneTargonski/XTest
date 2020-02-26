@@ -105,13 +105,13 @@ namespace XTest
         private async void OnButtonAddClicked(object sender, System.EventArgs e)
         {
             string json = JsonSerializer.Serialize(user);
-            using (HttpClient hc = new HttpClient())
+            using (HttpClient httpClient = new HttpClient())
             {
-                hc.BaseAddress = new Uri("http://xtestapplication.azurewebsites.net/api/users");
-                hc.DefaultRequestHeaders.Accept.Clear();
-                hc.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                httpClient.BaseAddress = new Uri("http://xtestapplication.azurewebsites.net/api/users");
+                httpClient.DefaultRequestHeaders.Accept.Clear();
+                httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                 var param = new StringContent(json, Encoding.Unicode, "application/json");
-                HttpResponseMessage response = await hc.PostAsync(hc.BaseAddress, param);
+                HttpResponseMessage response = await httpClient.PostAsync(httpClient.BaseAddress, param);
                 label.Text = "User GoogleID=" + user?.GoogleID + " added to database";
             }
         }

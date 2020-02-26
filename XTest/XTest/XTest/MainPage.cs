@@ -25,8 +25,7 @@ namespace XTest
 
         private void MainPage_CurrentPageChanged(object sender, EventArgs e)
         {
-            if(CurrentPage == testPage4)
-                testPage4.label.Text = testPage3.selectedDate.ToString();
+            // if(CurrentPage == testPage4) testPage4.label.Text = testPage3.selectedDate.ToString();
         }
     }
 }

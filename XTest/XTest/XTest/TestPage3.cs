@@ -11,6 +11,12 @@ namespace XTest
 {
     public class TestPage3 : ContentPage
     {
+
+        public TestPage3()
+        { 
+
+        }
+        /*
         private readonly Calendar calendar = new Calendar
         {
             BorderColor = Color.LightGray,
@@ -65,5 +71,6 @@ namespace XTest
         {
             selectedDate = calendar.SelectedDate;
         }
+        /**/
     }
 }
