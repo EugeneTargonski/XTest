@@ -44,8 +44,8 @@ namespace XTest
         private List<WorkingTime> workingTimes = new List<WorkingTime>();
         public TestPage4()
         {
-            Task getWorkingTime = GetWorkingTime();
-            getWorkingTime.Wait();
+            //Task getWorkingTime = GetWorkingTime();
+            //getWorkingTime.Wait();
 
             ResetView();
         }
@@ -54,20 +54,8 @@ namespace XTest
             //string json = JsonSerializer.Serialize(user);
             using (HttpClient httpClient = new HttpClient())
             {
-                HttpRequestMessage request = new HttpRequestMessage();
-                request.RequestUri = new Uri("http://xtestapplication.azurewebsites.net/api/workingtimes");
-                request.Method = HttpMethod.Get;
-                request.Headers.Add("Accept", "application/json");
-                await httpClient.SendAsync(request);
-
-                /*
-                hc.BaseAddress = new Uri("http://xtestapplication.azurewebsites.net/api/workingtimes");
-                hc.DefaultRequestHeaders.Accept.Clear();
-                hc.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-                //var param = new StringContent(json, Encoding.Unicode, "application/json");
-                HttpResponseMessage response = await hc.GetAsync(hc.BaseAddress);*/
-                workingTimes = JsonSerializer.Deserialize<List<WorkingTime>>(request.Content.ToString());
-
+                string response = await httpClient.GetStringAsync("http://xtestapplication.azurewebsites.net/api/workingtimes");
+                workingTimes = JsonSerializer.Deserialize<List<WorkingTime>>(response);
                 label.Text = "WT done";
             }
         }
