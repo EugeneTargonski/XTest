@@ -44,20 +44,19 @@ namespace XTest
         private List<WorkingTime> workingTimes = new List<WorkingTime>();
         public TestPage4()
         {
-            //Task getWorkingTime = GetWorkingTime();
-            //getWorkingTime.Wait();
-
-            ResetView();
+            GetWorkingTime();
         }
         private async Task GetWorkingTime()
         {
             //string json = JsonSerializer.Serialize(user);
             using (HttpClient httpClient = new HttpClient())
             {
-                string response = await httpClient.GetStringAsync("http://xtestapplication.azurewebsites.net/api/workingtimes");
+                string response = await httpClient.GetStringAsync("http://xtestapplication.azurewebsites.net/api/workingtimes");//.ConfigureAwait(false);
+
                 workingTimes = JsonSerializer.Deserialize<List<WorkingTime>>(response);
-                label.Text = "WT done";
+                //label.Text = response;
             }
+            ResetView();
         }
         private void ResetView()
         {
