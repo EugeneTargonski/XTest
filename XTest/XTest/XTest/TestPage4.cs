@@ -52,9 +52,12 @@ namespace XTest
             using (HttpClient httpClient = new HttpClient())
             {
                 string response = await httpClient.GetStringAsync("http://xtestapplication.azurewebsites.net/api/workingtimes");//.ConfigureAwait(false);
+                var CCopt = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                };
+                workingTimes = JsonSerializer.Deserialize<List<WorkingTime>>(response, CCopt);
 
-                workingTimes = JsonSerializer.Deserialize<List<WorkingTime>>(response);
-                //label.Text = response;
             }
             ResetView();
         }
@@ -63,14 +66,16 @@ namespace XTest
             //TODO: need 1 time to run
 
             calendarGrid = new Grid { RowSpacing = 1, ColumnSpacing = 1 };
-            for (var i = 1; i <= 7; i++)
+            calendarGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            calendarGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.5, GridUnitType.Star) });
+            for (var i = 2; i <= 6; i++)
                 calendarGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-            for (var i = 1; i <= 7; i++)
+            for (var i = 0; i <= 7; i++)
                 calendarGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
             var firstDayOfMonth = new DateTime(initialDate.Year, initialDate.Month, 1);
-            var dayOfWeekEU = firstDayOfMonth.DayOfWeek == 0 ? 6 : (int)firstDayOfMonth.DayOfWeek;
-            var currCalDay = firstDayOfMonth.AddDays(-dayOfWeekEU);
+            var dayOfWeekEU = firstDayOfMonth.DayOfWeek == 0 ? 7 : (int)firstDayOfMonth.DayOfWeek;
+            var currCalDay = firstDayOfMonth.AddDays(-dayOfWeekEU+1);
 
             var leftButton = new Button { Text = "<", Style = plainButton, IsEnabled = IsEnabled };
             leftButton.Clicked += LeftButtonClicked;
@@ -79,11 +84,37 @@ namespace XTest
             rightButton.Clicked += RigthButtonClicked;
             calendarGrid.Children.Add(rightButton, 6, 0);
             
-            for (var y = 1; y <= 6; y++)
+            for (var y = 2; y <= 7; y++)
                 for (var x = 0; x <= 6; x++)
                 {
+                    if (y == 2)
+                    {
+                        var dayOfWeekLabel = new Label()
+                        {
+                            VerticalTextAlignment = TextAlignment.Center,
+                            HorizontalTextAlignment = TextAlignment.Center,
+                            Text = currCalDay.ToString("ddd")
+                        };
+                        calendarGrid.Children.Add(dayOfWeekLabel, x, 1);
+                    };
+                    if (currCalDay.Month != initialDate.Month)
+                    {
+                        currCalDay = currCalDay.AddDays(1);
+                        continue; 
+                    }
+                    Color datecolor = Color.Black;
+                    //TODO need check for empty
+                    //TODO workingTimes need for cleaning by year
+                    foreach (var workingTime in workingTimes)
+                        if (currCalDay >= workingTime.BeginDate && currCalDay <= workingTime.EndDate)
+                        {
+                            int rewrew = Convert.ToInt32(Math.Pow(2, (double)currCalDay.DayOfWeek));
+                            if ((rewrew & workingTime.WeeklyHolydays)>0)
+                                datecolor = Color.Red;
+                        }
+                    /*  */
                     bool IsEnabled = currCalDay.Month == initialDate.Month;
-                    var dateButton = new Button { Text = currCalDay.Day.ToString(), Style = plainButton, IsEnabled = IsEnabled };
+                    var dateButton = new Button { Text = currCalDay.Day.ToString(), Style = plainButton, IsEnabled = IsEnabled, TextColor = datecolor };
                     dateButton.Clicked += DateClicked;
                     calendarGrid.Children.Add(dateButton, x, y);
                     currCalDay = currCalDay.AddDays(1);
