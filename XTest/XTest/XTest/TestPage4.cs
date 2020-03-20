@@ -46,7 +46,7 @@ namespace XTest
         {
             GetWorkingTime();
         }
-        private async Task GetWorkingTime()
+        private async void GetWorkingTime()
         {
             //string json = JsonSerializer.Serialize(user);
             using (HttpClient httpClient = new HttpClient())
@@ -70,17 +70,17 @@ namespace XTest
             calendarGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0.5, GridUnitType.Star) });
             for (var i = 2; i <= 6; i++)
                 calendarGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-            for (var i = 0; i <= 7; i++)
+            for (var i = 0; i <= 6; i++)
                 calendarGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
             var firstDayOfMonth = new DateTime(initialDate.Year, initialDate.Month, 1);
             var dayOfWeekEU = firstDayOfMonth.DayOfWeek == 0 ? 7 : (int)firstDayOfMonth.DayOfWeek;
             var currCalDay = firstDayOfMonth.AddDays(-dayOfWeekEU+1);
 
-            var leftButton = new Button { Text = "<", Style = plainButton, IsEnabled = IsEnabled };
+            var leftButton = new Button { Text = "<", Style = plainButton, IsEnabled = true };
             leftButton.Clicked += LeftButtonClicked;
             calendarGrid.Children.Add(leftButton, 0, 0);
-            var rightButton = new Button { Text = ">", Style = plainButton, IsEnabled = IsEnabled };
+            var rightButton = new Button { Text = ">", Style = plainButton, IsEnabled = true };
             rightButton.Clicked += RigthButtonClicked;
             calendarGrid.Children.Add(rightButton, 6, 0);
             
@@ -131,7 +131,7 @@ namespace XTest
             calendarGrid.Children.Add(monthLabel, 1, 0);
             Grid.SetColumnSpan(monthLabel, 5);
 
-                        StackLayout stackLayout = new StackLayout();
+            StackLayout stackLayout = new StackLayout();
             stackLayout.Children.Add(label);
             stackLayout.Children.Add(calendarGrid);
             stackLayout.Children.Add(listView);

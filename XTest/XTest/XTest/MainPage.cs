@@ -13,6 +13,7 @@ namespace XTest
         private readonly TestPage2 testPage2 = new TestPage2();
         private readonly TestPage3 testPage3 = new TestPage3();
         private readonly TestPage4 testPage4 = new TestPage4();
+        private readonly TestPage5 testPage5 = new TestPage5();
 
         public MainPage()
         {
@@ -20,6 +21,7 @@ namespace XTest
             Children.Add(testPage2);
             Children.Add(testPage3);
             Children.Add(testPage4);
+            Children.Add(testPage5);
             CurrentPageChanged += MainPage_CurrentPageChanged;
         }
 

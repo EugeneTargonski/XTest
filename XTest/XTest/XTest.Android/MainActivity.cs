@@ -27,7 +27,7 @@ namespace XTest.Droid
             XamForms.Controls.Droid.Calendar.Init();
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             global::Xamarin.Auth.Presenters.XamarinAndroid.AuthenticationConfiguration.Init(this, savedInstanceState);
-            //global::Xamarin.Auth.CustomTabsConfiguration.CustomTabsClosingMessage = null;
+            global::Xamarin.Auth.CustomTabsConfiguration.CustomTabsClosingMessage = null;
 
 
             LoadApplication(new App());
