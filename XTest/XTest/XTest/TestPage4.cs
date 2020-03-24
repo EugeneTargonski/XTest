@@ -18,7 +18,6 @@ namespace XTest
             HorizontalTextAlignment = TextAlignment.Center,
             FontSize = Device.GetNamedSize(NamedSize.Small, typeof(Label))
         };
-        //private readonly StackLayout stackLayout = new StackLayout();
         private readonly Style plainButton = new Style(typeof(Button))
         {
             Setters = {
