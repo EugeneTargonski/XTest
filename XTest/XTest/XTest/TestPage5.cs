@@ -17,7 +17,15 @@ namespace XTest
     {
         public TestPage5()
         {
-            Calendar calendar = new Calendar();
+            
+            Calendar calendar = new Calendar() 
+            { 
+                WeeklyHolydays = 65,
+                UnplannedWorkingDays = new List<DateTime> { new DateTime(2020, 03, 28) },
+                UnplannedHolydays = new List<DateTime> { new DateTime(2020, 03, 25), new DateTime(2020, 03, 24) }
+            };
+            calendar.Init();
+
             StackLayout stackLayout = new StackLayout();
             stackLayout.Children.Add(calendar);
             ScrollView scrollView = new ScrollView
