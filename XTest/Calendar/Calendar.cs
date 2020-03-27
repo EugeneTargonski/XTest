@@ -11,7 +11,7 @@ namespace XCalendar
         public List<DateTime> UnplannedWorkingDays { get; set; }
         public List<DateTime> UnplannedHolydays { get; set; }
         public DateTime InitialDate { get; set; } = DateTime.Now;
-        public bool HideOtherMonthsDates { get; set; } = true;
+        public bool HideOtherMonthsDates { get; set; } = false;
         public Style UnselectedDateStyle { get; set; } = new Style(typeof(Button))
         {
             Setters = {

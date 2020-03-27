@@ -19,7 +19,8 @@ namespace XTest
         {
             
             Calendar calendar = new Calendar() 
-            { 
+            {
+                HideOtherMonthsDates = false,
                 WeeklyHolydays = 65,
                 UnplannedWorkingDays = new List<DateTime> { new DateTime(2020, 03, 28) },
                 UnplannedHolydays = new List<DateTime> { new DateTime(2020, 03, 25), new DateTime(2020, 03, 24) }
